@@ -1,0 +1,300 @@
+---
+title: "Tarea_4_Codificación de variables cualitativas en R"
+author: "Melissa Reyes Paz"
+date: '2022-09-22'
+output: html_document
+---
+
+# Synthetic data data preparation
+
+En el ejemplo se utilizó un data set perteneciente a la librería 'maps'
+
+# Libraries
+```{r}
+#install.packages("maps")
+```
+
+```{r}
+library(maps)
+library(data.table)
+```
+
+# Get American city names from the world.cities dataset in the maps package
+
+```{r}
+cities <- world.cities[world.cities["country.etc"] == "USA", "name"]
+cities <- unique(cities)
+```
+
+# Take 100 unique cities
+
+```{r}
+set.seed(42)
+cities <- sample(cities, 100)
+```
+
+# Define an ordinal variable called high/medium/low
+```{r}
+hml <- c("High", "Medium", "Low")
+```
+
+# Define a dataset comprising these two variables
+```{r}
+set.seed(42)
+df <- data.table(
+  city = sample(cities, 5000, replace = TRUE),
+  hml = sample(hml, 5000, replace = TRUE)
+)
+```
+
+
+# Randomly set 5% of the values of the city and hml to missing
+```{r}
+set.seed(317)
+sr <- sample(1:5000, 250)
+df[sr, "city"] <- NA_character_
+set.seed(111)
+sr <- sample(1:5000, 250)
+df[sr, "hml"] <- NA_character_
+```
+
+
+# Create the target variable; it has a relationship with the hml variable but not the city
+```{r}
+df[["target"]] <- 0
+table(df$hml, useNA = "ifany")
+set.seed(42)
+sr <- sample(which(df[["hml"]] == "High"), 40)
+df[sr, "target"] <- 1
+sr <- sample(which(df[["hml"]] == "Medium"), 150)
+df[sr, "target"] <- 1
+sr <- sample(which(df[["hml"]] == "Low"), 500)
+df[sr, "target"] <- 1
+sr <- sample(which(is.na(df[["hml"]])), 125)
+df[sr, "target"] <- 1
+sum(df$target)
+```
+
+# One-hot encoding
+
+# Using model.matrix
+```{r}
+new_df <- df
+new_df$city <- factor(new_df$city, exclude = NULL)
+new_df$hml <- factor(new_df$hml, exclude = NULL)
+new_df <- model.matrix(~.-1, data = new_df[, c("city", "hml")],
+                       contrasts.arg = list(
+                         city = contrasts(new_df$city, contrasts = FALSE),
+                         hml = contrasts(new_df$hml, contrasts = FALSE)
+                       ))
+```
+
+
+# Using vtreat - Recommended
+```{r}
+tz <- vtreat::designTreatmentsZ(df, c("city", "hml"))
+new_df <- vtreat::prepare(tz, df, extracols = "target")
+```
+
+
+# Using caret
+```{r}
+library(caret)
+```
+
+```{r}
+new_df <- df
+new_df$city <- factor(new_df$city, exclude = NULL)
+new_df$hml <- factor(new_df$hml, exclude = NULL)
+new_df$city <- addNA(new_df$city)
+new_df$hml <- addNA(new_df$hml)
+dv <- caret::dummyVars(" ~ city + hml", data = new_df)
+new_df <- data.frame(predict(dv, newdata = df))
+detach("package:caret", unload = TRUE)
+```
+
+
+#Polynomial encode
+
+```{r}
+encode_polynomial <- function(df, var) {
+  x <- df[[var]]
+  x <- unique(x)
+  n <- length(x)
+  d <- as.data.frame(contr.poly(n))
+  d[[var]] <- x
+  names(d) <- c(paste0(var, 1:(n-1)), var)
+  d
+}
+```
+
+
+```{r}
+d <- encode_polynomial(df, "hml")
+d
+```
+
+
+```{r}
+df[1, "hml"] <- NA_character_
+d <- encode_polynomial(df, "hml")
+d
+```
+
+
+```{r}
+d <- data.frame(v = sample(c("a", "b", "c", "d", "e"), 100, replace = TRUE))
+d <- encode_polynomial(d, "v")
+d
+```
+
+
+#Target Encode
+
+```{r}
+encode_target <- function(x, y, sigma = NULL) {
+  d <- aggregate(y, list(factor(x, exclude = NULL)), mean, na.rm = TRUE)
+  m <- d[is.na(as.character(d[, 1])), 2]
+  l <- d[, 2]
+  names(l) <- d[, 1]
+  l <- l[x]
+  l[is.na(l)] <- m
+  if (!is.null(sigma)) {
+    l <- l * rnorm(length(l), mean = 1, sd = sigma)
+  }
+  l
+}
+```
+
+
+```{r}
+table(encode_target(df[["hml"]], df[["target"]]), df[["hml"]], useNA = "ifany")
+```
+
+
+```{r}
+new_df <- df
+new_df[["hml_encoded"]] <- encode_target(df[["hml"]], df[["target"]])
+new_df[["hml_encoded2"]] <- encode_target(df[["hml"]], df[["target"]],
+                                          sigma = 0.05)
+new_df[["city_encoded"]] <- encode_target(df[["city"]], df[["target"]])
+
+```
+
+
+Se trató de recrear estos encoder con información diferente, pero me quedé un poco atorada en la parte de realizar una variable target ya que quise trabajar con datos como color de piel y ojos. 
+Usé dos maneras para realizar el One-Hot encoding pero al momento de llevar a cabo un método de codificación bayesiano me quedé atrás.
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(dataPreparation)
+```
+
+#Get the dataset StarWars from dplyr.
+```{r}
+swars <- starwars
+select(swars, name, skin_color, eye_color) -> swd
+```
+
+# Create the target variable; it has a relationship with the hml variable but not the city
+```{r}
+target = sample(c(0, 1), 6000,
+                               replace = TRUE))
+```
+
+
+# One-hot encoding
+
+# Using caret
+```{r}
+library(caret)
+```
+
+```{r}
+new_df <- swd
+new_df$name <- factor(new_df$name, exclude = NULL)
+new_df$skin_color <- factor(new_df$skin_color, exclude = NULL)
+new_df$eye_color <- factor(new_df$eye_color, exclude = NULL)
+new_df$name <- addNA(new_df$name)
+new_df$skin_color <- addNA(new_df$skin_color)
+new_df$eye_color <- addNA(new_df$eye_color)
+dv <- caret::dummyVars(" ~ name + skin_color + eye_color", data = new_df)
+new_df <- data.frame(predict(dv, newdata = swd))
+detach("package:caret", unload = TRUE)
+```
+
+
+#Usando dummies
+
+```{r}
+columna_dummy <- function(df, columna) {
+  df %>% 
+  mutate_at(columna, ~paste(columna, eval(as.symbol(columna)), sep = "_")) %>% 
+    mutate(valor = 1) %>% 
+    spread(key = columna, value = valor, fill = 0)
+}
+```
+
+
+```{r}
+map(c("skin_color", "eye_color"), columna_dummy, df = swd)  %>% 
+  reduce(inner_join) -> ohe
+```
+
+
+#Polynomial encode
+
+```{r}
+encode_polynomial <- function(df, var) {
+  x <- df[[var]]
+  x <- unique(x)
+  n <- length(x)
+  d <- as.data.frame(contr.poly(n))
+  d[[var]] <- x
+  names(d) <- c(paste0(var, 1:(n-1)), var)
+  d
+}
+```
+
+
+```{r}
+d <- encode_polynomial(swd, "skin_color")
+d
+```
+
+
+```{r}
+swd[1, "skin_color"] <- NA_character_
+d <- encode_polynomial(swd, "skin_color")
+d
+```
+
+
+```{r}
+d <- data.frame(v = sample(c("a", "b", "c", "d", "e"), 100, replace = TRUE))
+d <- encode_polynomial(d, "v")
+d
+```
+
+
+
+
+#Target Encode
+
+```{r}
+encode_target <- function(x, y, sigma = NULL) {
+  d <- aggregate(y, list(factor(x, exclude = NULL)), mean, na.rm = TRUE)
+  m <- d[is.na(as.character(d[, 1])), 2]
+  l <- d[, 2]
+  names(l) <- d[, 1]
+  l <- l[x]
+  l[is.na(l)] <- m
+  if (!is.null(sigma)) {
+    l <- l * rnorm(length(l), mean = 1, sd = sigma)
+  }
+  l
+}
+```
+
