@@ -198,12 +198,6 @@ swars <- starwars
 select(swars, name, skin_color, eye_color) -> swd
 ```
 
-# Create the target variable; it has a relationship with the hml variable but not the city
-```{r}
-target = sample(c(0, 1), 6000,
-                               replace = TRUE))
-```
-
 
 # One-hot encoding
 
