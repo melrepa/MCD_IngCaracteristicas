@@ -1,6 +1,6 @@
 # Descripción de fuentes de datos.
 
-Estos son los tidy DataFrames que se utilizarán en el proyecto final del curso de Ingeniería de Características. La pregunta es: Antes de un feminicidio, ¿la víctima se reporta como desaparecida?
+Estos son los tidy DataFrames que se utilizarán en el proyecto final del curso de Ingeniería de Características. La pregunta es: Cuando se comete un feminicidio, ¿la víctima ha sido reportada como desaparecida anteriormente?
 
 Se encontraron tres fuentes de información que dan datos de diferente origen, los cuales son:
 
