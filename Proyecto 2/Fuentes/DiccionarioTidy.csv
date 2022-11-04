@@ -1,0 +1,14 @@
+﻿Variable,Etiqueta,Descripción de la variable,Tipo de variable
+Año,Año,Año en que se recibió la denuncia de feminicidio y personas desaparecidas.,Int
+Entidad donde se realizó la denuncia.,Entidad,Entidad donde se realizó la denuncia.,String
+TotalFeminicidios,Valor/Cantidad,Número de feminicidios registrados/denunciados.,Int
+RD_M,RD_M,Reportados como desaparecidos Mujeres,Int
+RD_215_M,RD_215_M,Reportados como desaparecidos por Artículo 215 A-D del CPF_Mujeres,Int
+EVDI_M,EVDI_M,Encontrados vivos desaparecidos involuntariamente_Mujeres,Int
+EVDV_M,EVDV_M,Encontrados vivos desaparecidos voluntariamente_Mujeres,Int
+EV_215_I_M,EV_215_I_M,Encontrados vivos por Artículo 215 A-D del CPF involuntariamente_Mujeres,Int
+EV_215_V_M,EV_215_V_M,Encontrados vivos por Artículo 215 A-D del CPF voluntariamente_Mujeres,Int
+DESV_M,DESV_M,Desaparecidos encontrados sin vida Mujeres,Int
+DESV_215_M,DESV_215_M,Desaparecidos encontrados sin vida por Artículo 215 A-D del CPF_Mujeres,Int
+CDNB_M,CDNB_M,Cantidad de desaparecidos que ya no se buscan Mujeres,Int
+CDNB_215_M,CDNB_215_M,Cantidad de personas desaparecidas por Artículo 215 A-D del CPF que ya no se buscan_Mujeres,Int
