@@ -4,4 +4,4 @@ Este repositorio tiene la intención de albergar la evidencia de algunas tareas 
 También se pueden consultar:
 
 * [Tarea 1: Descargando datos](https://github.com/melrepa/Practicando-descarga-de-datos-en-python).
-* [Proyecto integrador](https://github.com/melrepa/Proyecto-Integrador-Ing-Car)
+* [Proyecto integrador](https://github.com/melrepa/Proyecto-Integrador-Ing-Car).
